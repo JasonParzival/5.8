@@ -12,6 +12,21 @@
     require_once "../controllers/PortalObjectDeleteController.php";
     require_once "../controllers/PortalObjectUpdateController.php";
 
+    require_once "../RestAPI/PortalRestController.php";
+
+    $url = $_SERVER['REQUEST_URI'];
+
+    $matches = [];
+    if(preg_match('#^/api/portal/(?P<id>\d+)$#', $url, $matches)) {
+        $id = $matches[1] ?? null;
+        //print_r($matches);
+        $controller = new PortalRestController;
+        $controller->process($id);
+    }
+
+    
+
+
     $loader = new \Twig\Loader\FilesystemLoader('../views');
     $twig = new \Twig\Environment($loader, [
         "debug" => true // добавляем тут debug режим
