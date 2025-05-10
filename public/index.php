@@ -17,8 +17,8 @@
     $url = $_SERVER['REQUEST_URI'];
 
     $matches = [];
-    if(preg_match('#^/api/portal/(?P<id>\d+)$#', $url, $matches)) {
-        $id = $matches[1] ?? null;
+    if(preg_match('#^/api/portal(/\d+)?/?#', $url, $matches)) {
+        $id = substr($matches[1] ?? "", 1);
         //print_r($matches);
         $controller = new PortalRestController;
         $controller->process($id);

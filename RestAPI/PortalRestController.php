@@ -5,56 +5,110 @@ class PortalRestController {
     public PDO $pdo;
     function __construct()
     {
-        //echo 123;
         $this->pdo = new PDO("mysql:host=localhost;dbname=portal_db;charset=utf8", "root", "");
     }
 
     public function process($id=null) {
         $method = $_SERVER['REQUEST_METHOD'];
-        echo $method;
-        echo "process: id=$id, method=$method";
-
+        
         $data = [];
-        if ($id){
-            if ($method == 'GET') {
-                $data = $this->list($id);
-                //$this->retrieve($id);
-            } elseif ($method == 'PUT') {
-                $data = $this->update($id);
-            } elseif ($method == 'DELETE') {
-                $data = $this->remove($id);
+        if ($id) {
+            $query = $this->pdo->prepare("SELECT * FROM portal_characters WHERE id = :id",);
+            $query->bindParam("id", $id);
+            $query->execute();
+
+            $instance = $query->fetch(PDO::FETCH_ASSOC);
+            
+            if ($method == "GET") {
+                $data = $this->retrieve($instance);
+            } elseif ($method == "DELETE") {
+                $data = $this->remove($instance);
+            } elseif ($method == "PUT") {
+                $data = $this->update($instance);
             }
         } else {
-            if ($method == 'GET') {
-                $data = $this->list($id);
-            } elseif ($method == 'POST') {
-                $data = $this->create($id);
-            } 
+            if ($method == "GET") {
+                $data = $this->list();
+            } elseif ($method == "POST") {
+                $data = $this->create();
+            }
         }
-
+        
         header('Content-type: application/json');
         echo json_encode($data ?? []);
     }
 
     public function list() {
-        //echo "list";
-        $query = $this->pdo->query("SELECT * FROM portal_characters");
+        $query = $this->pdo->query("SELECT * FROM portal_characters LIMIT 10");
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function create() {
-        echo "create";
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+
+        $title = $data['title'] ?? '';
+        $image = $data['image'] ?? '';
+        $description = $data['description'] ?? '';
+        $info = $data['info'] ?? '';
+        $type = $data['type'] ?? '';
+
+        $query = $this->pdo->prepare("
+        INSERT INTO portal_characters(title, image, description, info, type)
+        VALUES (:title, :image, :description, :info, :type)
+        ");
+        $query->bindValue("title", $title);
+        $query->bindValue("image", $image);
+        $query->bindValue("description", $description);
+        $query->bindValue("info", $info);
+        $query->bindValue("type", $type);
+
+        $query->execute();
+
+        return $this->pdo->lastInsertId();
     }
 
-    public function retrieve($id) {
-        echo "retrieve";
+    public function retrieve($instance) {
+        return $instance;
     }
 
-    public function update($id) {
-        echo "update";
+    public function update($instance) {
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+        print_r($data);
+
+        $query = $this->pdo->prepare("
+        UPDATE portal_characters 
+        SET title = :title, 
+            image = :image, 
+            description = :description, 
+            info = :info, 
+            type = :type 
+        WHERE id = :id
+        ");
+
+        $title = $data['title'] ?? $instance['title'];
+        $image = $data['image'] ?? $instance['image'];
+        $description = $data['description'] ?? $instance['description'];
+        $info = $data['info'] ?? $instance['info'];
+        $type = $data['type'] ?? $instance['type'];
+
+        $query->bindParam("title", $title);
+        $query->bindParam("image", $image);
+        $query->bindParam("description", $description);
+        $query->bindParam("info", $info);
+        $query->bindParam("type", $type);
+        $query->bindParam("id", $instance['id']);
+        $query->execute();
+        echo 123;
+
+        return $data;
     }
 
-    public function remove($id) {
-        echo "remove";
+    public function remove($instance) {
+        $query = $this->pdo->prepare("DELETE FROM portal_characters WHERE id = :id");
+        $query->bindParam("id", $instance['id']);
+        $query->execute();
+        return ["success" => True];
     }
 }
