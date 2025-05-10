@@ -40,7 +40,7 @@ class PortalRestController {
         }
         
         header('Content-type: application/json');
-        echo json_encode($data ?? []);
+        //echo json_encode($data ?? []);
     }
 
     public function list() {
@@ -92,6 +92,11 @@ class PortalRestController {
         WHERE id = :id
         ");
 
+        $tmp_name = $_FILES['image']['tmp_name'];
+        $name =  $_FILES['image']['name'];
+        move_uploaded_file($tmp_name, "../public/media/$name");
+        $image_url = "/media/$name" ?? $instance['image'];
+
         $title = $data['title'] ?? $instance['title'];
         $image = $data['image'] ?? $instance['image'];
         $description = $data['description'] ?? $instance['description'];
@@ -99,21 +104,25 @@ class PortalRestController {
         $type = $data['type'] ?? $instance['type'];
 
         $query->bindParam("title", $title);
-        $query->bindParam("image", $image);
+        $query->bindParam("image", $image_url);
         $query->bindParam("description", $description);
         $query->bindParam("info", $info);
         $query->bindParam("type", $type);
         $query->bindParam("id", $instance['id']);
         $query->execute();
-        echo 123;
 
-        return $data;
+        $context['message'] = 'Данные успешно обновлены';
+        $context['id'] = $instance['id'];
+
+        return $context;
     }
 
     public function remove($instance) {
         $query = $this->pdo->prepare("DELETE FROM portal_characters WHERE id = :id");
         $query->bindParam("id", $instance['id']);
         $query->execute();
-        return ["success" => True];
+        header("Location: /");
+        exit;
+        //return ["success" => True];
     }
 }

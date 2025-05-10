@@ -10,13 +10,7 @@
                 </li>
             </ul>
             <div class="position-absolute" style="right: 4px; top: 4px">
-                <!--<form action="/portal-character/{{ menu.id }}/delete" method="POST">
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </form>-->
                 <form action="/api/portal/{{ menu.id }}" method="POST">
-                    
                     <button type="submit" class="btn btn-danger">
                         <input type="hidden" name="_method" value="DELETE">
                         <i class="fas fa-times"></i>

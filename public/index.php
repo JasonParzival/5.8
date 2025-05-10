@@ -44,7 +44,7 @@
     $router->add("/search", SearchController::class);
     $router->add("/create", PortalObjectCreateController::class);
     $router->add("/types", PortalObjectTypesController::class);
-    $router->add("/portal-character/(?P<id>\d+)/delete", PortalObjectDeleteController::class);
+    //$router->add("/portal-character/(?P<id>\d+)/delete", PortalObjectDeleteController::class);
     $router->add("/portal-character/(?P<id>\d+)/edit", PortalObjectUpdateController::class);
 
     $router->get_or_default(Controller404::class);
