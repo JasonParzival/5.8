@@ -9,11 +9,16 @@ class PortalRestController {
     }
 
     public function process($id=null) {
-        $method = $_SERVER['REQUEST_METHOD'];
+        //$method = $_SERVER['REQUEST_METHOD'];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['_method'])) {
+            $method = strtoupper($_POST['_method']);
+        } else {
+            $method = $_SERVER['REQUEST_METHOD'];
+        }
         
         $data = [];
         if ($id) {
-            $query = $this->pdo->prepare("SELECT * FROM portal_characters WHERE id = :id",);
+            $query = $this->pdo->prepare("SELECT * FROM portal_characters WHERE id = :id");
             $query->bindParam("id", $id);
             $query->execute();
 
